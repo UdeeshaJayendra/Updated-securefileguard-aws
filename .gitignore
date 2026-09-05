@@ -1,0 +1,29 @@
+# Terraform
+.terraform/
+**/.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+*.tfplan
+
+# AWS credentials / secrets
+.aws/
+.env
+.env.*
+*.pem
+*.key
+
+# Python
+__pycache__/
+*.pyc
+
+# Terraform Lambda packages
+*.zip
+
+# Backup files
+*.backup.py
+
+# OS
+Thumbs.db
+.DS_Store
