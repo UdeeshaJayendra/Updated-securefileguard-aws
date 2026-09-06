@@ -203,9 +203,10 @@ ClamAV was also tested against the harmless **EICAR antivirus test signature** t
 
 <img width="1602" height="910" alt="03-docker-clamav-container png" src="https://github.com/user-attachments/assets/0e6b2068-f1da-4260-95af-95af08833db1" />
 
-<img width="1602" height="910" alt="03-docker-clamav-container png" src="https://github.com/user-attachments/assets/bc74d2c7-0c80-4773-b842-ab86d43b5590" />
-
 <img width="1888" height="584" alt="02-container-lambda" src="https://github.com/user-attachments/assets/55a9eec9-4c90-4413-bcca-a7f82ccea632" />
+
+<img width="1905" height="499" alt="03-ecr-clamav-scanner" src="https://github.com/user-attachments/assets/1b032750-1cfa-4eb4-a7b0-2e61fa5b8e4b" />
+
 
 ---
 
