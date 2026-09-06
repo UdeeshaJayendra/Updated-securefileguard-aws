@@ -108,3 +108,107 @@ resource "aws_cloudwatch_log_group" "upload" {
     aws_lambda_function.upload
   ]
 }
+
+
+# ============================================================
+# SecureFileGuard Dashboard API Lambda
+# ============================================================
+
+data "archive_file" "dashboard_lambda" {
+  type        = "zip"
+  source_file = "${path.module}/../dashboard/api/lambda_function.py"
+  output_path = "${path.module}/dashboard_lambda.zip"
+}
+
+resource "aws_iam_role" "dashboard_lambda_role" {
+  name = "${var.project_name}-dashboard-lambda-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+
+    Statement = [{
+      Effect = "Allow"
+
+      Principal = {
+        Service = "lambda.amazonaws.com"
+      }
+
+      Action = "sts:AssumeRole"
+    }]
+  })
+
+  tags = {
+    Name        = "SecureFileGuard Dashboard Lambda Role"
+    Project     = var.project_name
+    Environment = "dev"
+  }
+}
+
+resource "aws_iam_role_policy" "dashboard_lambda_policy" {
+  name = "${var.project_name}-dashboard-lambda-policy"
+  role = aws_iam_role.dashboard_lambda_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+
+    Statement = [
+
+      {
+        Effect = "Allow"
+
+        Action = [
+          "dynamodb:Scan",
+          "dynamodb:GetItem"
+        ]
+
+        Resource = aws_dynamodb_table.scan_results.arn
+      },
+
+      {
+        Effect = "Allow"
+
+        Action = [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ]
+
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+resource "aws_lambda_function" "dashboard_api" {
+  function_name = "${var.project_name}-dashboard-api"
+
+  role = aws_iam_role.dashboard_lambda_role.arn
+
+  runtime = "python3.12"
+
+  handler = "lambda_function.lambda_handler"
+
+  filename = data.archive_file.dashboard_lambda.output_path
+
+  source_code_hash = data.archive_file.dashboard_lambda.output_base64sha256
+
+  timeout = 30
+
+  memory_size = 256
+
+  environment {
+    variables = {
+      TABLE_NAME = aws_dynamodb_table.scan_results.name
+    }
+  }
+
+  tags = {
+    Name        = "SecureFileGuard Dashboard API"
+    Project     = var.project_name
+    Environment = "dev"
+  }
+
+  depends_on = [
+    aws_iam_role_policy.dashboard_lambda_policy
+  ]
+}

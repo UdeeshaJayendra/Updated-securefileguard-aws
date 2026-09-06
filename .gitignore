@@ -1,29 +1,96 @@
+# ==========================================
+# SecureFileGuard - Git Ignore
+# ==========================================
+
+# ------------------------------
 # Terraform
+# ------------------------------
 .terraform/
 **/.terraform/
+
 *.tfstate
 *.tfstate.*
-crash.log
-crash.*.log
 *.tfplan
 
-# AWS credentials / secrets
+crash.log
+crash.*.log
+
+# Terraform generated Lambda ZIP packages
+terraform/*.zip
+
+# Terraform lock file SHOULD be committed
+# .terraform.lock.hcl
+
+
+# ------------------------------
+# AWS / Secrets
+# ------------------------------
 .aws/
 .env
 .env.*
 *.pem
 *.key
+credentials
+credentials.json
 
+
+# ------------------------------
 # Python
+# ------------------------------
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
 
-# Terraform Lambda packages
-*.zip
-
-# Backup files
+# Python backup files
 *.backup.py
 
-# OS
-Thumbs.db
+# Virtual environments
+venv/
+.venv/
+env/
+
+
+# ------------------------------
+# Node / React
+# ------------------------------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# React build output
+dashboard/frontend/build/
+
+# Environment files
+dashboard/frontend/.env
+dashboard/frontend/.env.local
+dashboard/frontend/.env.development.local
+dashboard/frontend/.env.test.local
+dashboard/frontend/.env.production.local
+
+
+# ------------------------------
+# OS / Editor
+# ------------------------------
 .DS_Store
+Thumbs.db
+
+.vscode/
+.idea/
+
+*.swp
+*.swo
+
+
+# ------------------------------
+# Logs
+# ------------------------------
+*.log
+
+
+# ------------------------------
+# Temporary files
+# ------------------------------
+*.tmp
+*.temp
+*~
