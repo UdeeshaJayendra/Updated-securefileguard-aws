@@ -200,11 +200,11 @@ ClamAV was also tested against the harmless **EICAR antivirus test signature** t
 > EICAR is a standard harmless test file used to verify antivirus detection. It is not real malware.
 
 ### Containerized Scanner Screenshots
-
+docker-clamav-container.png
 <img width="1602" height="910" alt="03-docker-clamav-container png" src="https://github.com/user-attachments/assets/0e6b2068-f1da-4260-95af-95af08833db1" />
-
+container-lambda
 <img width="1888" height="584" alt="02-container-lambda" src="https://github.com/user-attachments/assets/55a9eec9-4c90-4413-bcca-a7f82ccea632" />
-
+ecr-clamav-scanner
 <img width="1905" height="499" alt="03-ecr-clamav-scanner" src="https://github.com/user-attachments/assets/1b032750-1cfa-4eb4-a7b0-2e61fa5b8e4b" />
 
 
@@ -215,13 +215,13 @@ ClamAV was also tested against the harmless **EICAR antivirus test signature** t
 The scan result was also stored in DynamoDB and an SNS security alert was generated.
 
 ### Threat Detection Evidence
-
+threat-detection-cloudwatch
 <img width="1907" height="582" alt="04-threat-detection-cloudwatch" src="https://github.com/user-attachments/assets/bed5b276-7db4-4955-a38c-e8931717b7bb" />
-
+threat-quarantine
 <img width="1907" height="573" alt="05-threat-quarantine" src="https://github.com/user-attachments/assets/725a2449-acc6-42d7-9a43-87ce88a47cdd" />
-
+dynamodb-audit
 <img width="1876" height="808" alt="06-dynamodb-audit" src="https://github.com/user-attachments/assets/66eeff1f-7e11-4884-b919-81a91a0f0013" />
-
+sns-security-alert
 <img width="1486" height="520" alt="07-sns-security-alert" src="https://github.com/user-attachments/assets/4f4be1c0-69fe-4a1b-85d7-3b955160baf9" />
 
 ---
