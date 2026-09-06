@@ -189,3 +189,33 @@ resource "aws_iam_role_policy_attachment" "upload_lambda_policy" {
   role       = aws_iam_role.upload_lambda_role.name
   policy_arn = aws_iam_policy.upload_lambda_policy.arn
 }
+
+# ============================================================
+# Dashboard API Lambda IAM Role
+# ============================================================
+
+resource "aws_iam_role" "dashboard_lambda_role" {
+  name = "${var.project_name}-dashboard-lambda-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+
+    Statement = [
+      {
+        Effect = "Allow"
+
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        }
+
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+
+  tags = {
+    Name        = "SecureFileGuard Dashboard Lambda Role"
+    Project     = var.project_name
+    Environment = "dev"
+  }
+}

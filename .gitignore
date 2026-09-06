@@ -94,3 +94,5 @@ Thumbs.db
 *.tmp
 *.temp
 *~
+# ClamAV virus database
+lambda/scanner/clamav/clamav-db/
