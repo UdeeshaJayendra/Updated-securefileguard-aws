@@ -1,69 +1,307 @@
-# SecureFileGuard
+# 🛡️ SecureFileGuard — Serverless File Security & Threat Detection
 
-## Serverless File Security & Threat Detection
+**SecureFileGuard** is a serverless cloud security platform built on AWS that automatically analyzes uploaded files, identifies potentially malicious or suspicious content, quarantines threats, records scan results, and sends real-time security alerts.
 
-SecureFileGuard is an AWS serverless platform that analyzes uploaded files, detects suspicious files, quarantines threats, stores scan results, and sends security alerts.
+The platform combines **AWS Lambda, Amazon S3, SQS, DynamoDB, SNS, Amazon ECR, Docker, and ClamAV**, with additional heuristic analysis for detecting suspicious executable characteristics.
 
-## Security Dashboard — Updated
+Infrastructure is managed using **Terraform**, making the entire security environment reproducible through Infrastructure as Code.
 
-The latest update adds a **React security monitoring dashboard** connected to AWS through API Gateway, Lambda, and DynamoDB.
-<img width="1866" height="815" alt="26-security-dashboard1" src="https://github.com/user-attachments/assets/724fa7ae-ff6d-480a-b19b-0ae45b91fb7f" />
-<img width="1831" height="684" alt="26-security-dashboard2" src="https://github.com/user-attachments/assets/108cc28e-8b5e-4484-a7e4-f9daf5ba55ad" />
+---
 
-### Dashboard Features
+##  Project Objective
 
-* Total, clean, suspicious & quarantined files
-* Average threat score
-* Threat distribution chart
-* Detection & quarantine rates
-* Recent scan history
-* SHA-256 and scan timestamps
+The goal of SecureFileGuard is to demonstrate how a modern cloud-based file security system can automatically:
 
-### Architecture
+1. Receive uploaded files securely.
+2. Analyze files for suspicious characteristics.
+3. Scan files using ClamAV.
+4. Calculate a threat score.
+5. Separate clean files from suspicious files.
+6. Quarantine potentially dangerous files.
+7. Store security scan results for auditing.
+8. Send automated security alerts.
+9. Provide a dashboard for monitoring scan statistics.
+
+---
+
+#  Architecture
 
 ```text
-React Dashboard
-      ↓
+                         User
+                           │
+                           ▼
+                  API Gateway / Upload
+                           │
+                           ▼
+                    Amazon S3
+                    uploads/
+                           │
+                     ObjectCreated
+                           │
+                           ▼
+                    Amazon SQS
+                Security Processing Queue
+                           │
+                           ▼
+                AWS Lambda Scanner
+                 Docker + ClamAV
+                           │
+              ┌────────────┴────────────┐
+              │                         │
+           CLEAN                      THREAT
+              │                         │
+              ▼                         ▼
+        S3 clean/              S3 quarantine/
+                                        │
+                                        ▼
+                              DynamoDB Scan Results
+                                        │
+                                        ▼
+                                  SNS Security Alert
+                                        │
+                                        ▼
+                                    Email Alert
+```
+
+---
+
+#  Security Monitoring Dashboard
+
+SecureFileGuard includes a web-based monitoring dashboard for viewing file security statistics.
+
+The dashboard retrieves scan results from DynamoDB through a serverless API.
+
+### Dashboard provides:
+
+* Total files scanned
+* Clean files
+* Suspicious files
+* Quarantined files
+* Average threat score
+* Security scan statistics
+
+```text
+Dashboard
+    │
+    ▼
 API Gateway
-      ↓
+    │
+    ▼
 Dashboard Lambda
-      ↓
+    │
+    ▼
 DynamoDB
 ```
 
-### AWS Services
+### Dashboard Screenshots
 
-**S3 · Lambda · SQS · DynamoDB · SNS · API Gateway · CloudWatch · IAM · Terraform**
+<img width="1590" height="450" alt="01-security-consloe log" src="https://github.com/user-attachments/assets/f2c7ccf3-68d1-4a15-9840-d02a66528464" />
+<img width="1870" height="829" alt="01-security-dashboard1" src="https://github.com/user-attachments/assets/8c331100-5bad-4ed7-a88f-02f2adea005f" />
+<img width="1849" height="826" alt="01-security-dashboard2" src="https://github.com/user-attachments/assets/1ffc6e34-f07a-4273-b942-08a7ddd8eb93" />
 
-### Security Features
 
-* SHA-256 hashing
-* File signature & extension analysis
-* Entropy analysis
-* Threat scoring
-* Automatic quarantine
-* SNS security alerts
-* SQS retry & DLQ
-* IAM least privilege
-* S3 encryption & Block Public Access
-* Path traversal & file-size protection
+### Dashboard API
 
-### Run Dashboard
+The statistics can also be retrieved directly through the API:
 
-```bash
-cd dashboard/frontend
-npm install
-npm start
+
+Example response:
+
+```text
+total_files          : 9
+clean                : 6
+suspicious           : 0
+quarantined          : 3
+average_threat_score : 30
 ```
 
-### Infrastructure
 
-```bash
-cd terraform
-terraform init
-terraform apply
+#  Security Detection Pipeline
+
+When a file is uploaded, SecureFileGuard performs multiple security checks.
+
+### 1. File Hashing
+
+A **SHA-256 hash** is generated for each scanned file.
+
+This provides a unique fingerprint that can be used for:
+
+* File identification
+* Audit records
+* Investigation
+* Comparing repeated uploads
+
+### 2. Extension Analysis
+
+The scanner checks the file extension for potentially dangerous types such as:
+
+```text
+.exe
+.dll
+.bat
+.cmd
+.ps1
+.vbs
+.js
 ```
 
-## Author
+### 3. File Signature / Magic Byte Analysis
 
-**Udeesha Jayendra**
+The scanner analyzes the actual file signature rather than relying only on the filename.
+For example, a Windows executable can be identified through the **PE/MZ executable signature**.
+This helps detect files that may have been renamed to disguise their real type.
+
+### 4. Entropy Analysis
+
+File entropy is analyzed to identify characteristics commonly associated with packed, compressed, or potentially obfuscated content.
+
+
+### 5. ClamAV Antivirus Scanning
+
+The scanner also integrates **ClamAV** for signature-based malware detection.
+
+```text
+Docker
+   │
+   ▼
+ClamAV Scanner
+   │
+   ▼
+Amazon ECR
+   │
+   ▼
+Lambda Container Image
+```
+
+ClamAV provides an additional antivirus detection layer alongside the custom heuristic analysis.
+
+---
+
+#  Containerized ClamAV Integration
+
+Instead of running the scanner as a traditional Lambda ZIP package, the security scanner is deployed as a **Docker container image**.
+
+The image contains:
+
+* Python scanner
+* ClamAV
+* ClamAV virus database
+* Required runtime dependencies
+
+The container image is stored in **Amazon ECR** and deployed to AWS Lambda.
+This approach makes it possible to package security software and its dependencies consistently across development and AWS environments.
+
+### Local Docker Validation
+
+The ClamAV environment was first tested locally using Docker.
+
+ClamAV was also tested against the harmless **EICAR antivirus test signature** to verify that the antivirus engine was functioning correctly.
+
+> EICAR is a standard harmless test file used to verify antivirus detection. It is not real malware.
+
+### Containerized Scanner Screenshots
+
+<img width="1602" height="910" alt="03-docker-clamav-container png" src="https://github.com/user-attachments/assets/0e6b2068-f1da-4260-95af-95af08833db1" />
+
+<img width="1602" height="910" alt="03-docker-clamav-container png" src="https://github.com/user-attachments/assets/bc74d2c7-0c80-4773-b842-ab86d43b5590" />
+
+<img width="1888" height="584" alt="02-container-lambda" src="https://github.com/user-attachments/assets/55a9eec9-4c90-4413-bcca-a7f82ccea632" />
+
+---
+
+#  Threat Detection & Quarantine
+
+The scan result was also stored in DynamoDB and an SNS security alert was generated.
+
+### Threat Detection Evidence
+
+<img width="1907" height="582" alt="04-threat-detection-cloudwatch" src="https://github.com/user-attachments/assets/bed5b276-7db4-4955-a38c-e8931717b7bb" />
+
+<img width="1907" height="573" alt="05-threat-quarantine" src="https://github.com/user-attachments/assets/725a2449-acc6-42d7-9a43-87ce88a47cdd" />
+
+<img width="1876" height="808" alt="06-dynamodb-audit" src="https://github.com/user-attachments/assets/66eeff1f-7e11-4884-b919-81a91a0f0013" />
+
+<img width="1486" height="520" alt="07-sns-security-alert" src="https://github.com/user-attachments/assets/4f4be1c0-69fe-4a1b-85d7-3b955160baf9" />
+
+---
+
+# 📧 Real-Time Security Alerts
+
+When a suspicious file is quarantined, the scanner publishes a security event to an **Amazon SNS topic**.
+
+The notification contains information such as:
+
+```json
+{
+  "file": "uploads/security-integration-test.exe",
+  "status": "QUARANTINED",
+  "threat_score": 90,
+  "sha256": "4b20121be423677ea731fe21bb10917d4e151165f204e6ed99bc0b76e6f33a5b",
+  "clamav_status": "CLEAN"
+}
+```
+
+This provides immediate visibility when a potentially dangerous file is detected.
+
+---
+
+### Antivirus Test
+
+The ClamAV engine was independently tested with the harmless EICAR test signature.
+
+This verified that the ClamAV engine and virus database were functioning correctly.
+
+---
+
+---
+
+# 📁 Project Structure
+
+```text
+SecureFileGuard/
+│
+├── terraform/
+│   ├── main.tf
+│   ├── variables.tf
+│   ├── outputs.tf
+│   ├── iam.tf
+│   ├── s3.tf
+│   ├── sqs.tf
+│   ├── dynamodb.tf
+│   ├── sns.tf
+│   ├── lambda.tf
+│   └── api_gateway.tf
+│
+├── lambda/
+│   ├── upload/
+│   │   └── lambda_function.py
+│   │
+│   └── scanner/
+│       ├── lambda_function.py
+│       └── clamav/
+│           ├── Dockerfile
+│           ├── lambda_function.py
+│           └── clamav-db/
+│
+├── dashboard/
+│   ├── api/
+│   │   └── lambda_function.py
+│   │
+│   └── frontend/
+│
+├── test/
+│   ├── clean.txt
+│   ├── synthetic.exe
+│   └── alert-test.exe
+│
+├── docs/
+│   └── screenshots/
+│
+└── README.md
+```
+
+---
+
+
+# Author
+ Udeesha Jayendra
