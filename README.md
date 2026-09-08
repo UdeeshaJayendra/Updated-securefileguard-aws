@@ -4,7 +4,7 @@
 
 The platform combines **AWS Lambda, Amazon S3, SQS, DynamoDB, SNS, Amazon ECR, Docker, and ClamAV**, with additional heuristic analysis for detecting suspicious executable characteristics.
 
-Infrastructure is managed using **Terraform**, making the entire security environment reproducible through Infrastructure as Code.
+Infrastructure is managed using **Terraform**, making the entire security environment reproducible through Infrastructure as Code
 
 ---
 
