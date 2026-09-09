@@ -25,6 +25,8 @@ The goal of SecureFileGuard is to demonstrate how a modern cloud-based file secu
 ---
 
 #  Architecture
+<img width="1408" height="768" alt="2" src="https://github.com/user-attachments/assets/ed0d80d2-f8c6-4aaa-9321-76a457b77dec" />
+
 
 ```text
                          User
