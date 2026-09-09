@@ -26,43 +26,7 @@ The goal of SecureFileGuard is to demonstrate how a modern cloud-based file secu
 
 #  Architecture
 <img width="1408" height="768" alt="2" src="https://github.com/user-attachments/assets/ed0d80d2-f8c6-4aaa-9321-76a457b77dec" />
-
-
-```text
-                         User
-                           │
-                           ▼
-                  API Gateway / Upload
-                           │
-                           ▼
-                    Amazon S3
-                    uploads/
-                           │
-                     ObjectCreated
-                           │
-                           ▼
-                    Amazon SQS
-                Security Processing Queue
-                           │
-                           ▼
-                AWS Lambda Scanner
-                 Docker + ClamAV
-                           │
-              ┌────────────┴────────────┐
-              │                         │
-           CLEAN                      THREAT
-              │                         │
-              ▼                         ▼
-        S3 clean/              S3 quarantine/
-                                        │
-                                        ▼
-                              DynamoDB Scan Results
-                                        │
-                                        ▼
-                                  SNS Security Alert
-                                        │
-                                        ▼
-                                    Email Alert
+                    
 ```
 
 ---
